@@ -1,7 +1,7 @@
 'use strict'
 const { decode } = require('hypercore-id-encoding')
 
-module.exports = (aliases) => {
+module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
   return function parse (url) {
     const {
       protocol,
@@ -12,8 +12,8 @@ module.exports = (aliases) => {
     if (protocol === 'file:') {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
-      if (!pathname) throw new Error('Path is missing')
-      if (!startsWithRoot) throw new Error('Path needs to start from the root, "/"')
+      if (!pathname) throw error('Path is missing')
+      if (!startsWithRoot) throw error('Path needs to start from the root, "/"')
       return {
         protocol,
         pathname
@@ -33,13 +33,13 @@ module.exports = (aliases) => {
       }
 
       if (parts === 2) { // pear://fork.length[/some/path]
-        throw new Error('Incorrect hostname')
+        throw error('Incorrect hostname')
       }
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         const isForkANumber = Number.isNaN(Number(fork))
         const isLengthANumber = Number.isNaN(Number(length))
-        if (!isForkANumber || !isLengthANumber) throw new Error('Incorrect hostname')
+        if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
 
         return {
           protocol,
@@ -53,7 +53,7 @@ module.exports = (aliases) => {
       if (parts === 4) { // pear://fork.length.keyOrAlias.hash[/some/path]
         const isForkANumber = Number.isNaN(Number(fork))
         const isLengthANumber = Number.isNaN(Number(length))
-        if (!isForkANumber || !isLengthANumber) throw new Error('Incorrect hostname')
+        if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
 
         return {
           protocol,
@@ -65,9 +65,9 @@ module.exports = (aliases) => {
         }
       }
 
-      throw new Error('Incorrect hostname')
+      throw error('Incorrect hostname')
     }
 
-    throw new Error('Protocol is not supported')
+    throw error('Protocol is not supported')
   }
 }

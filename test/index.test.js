@@ -1,3 +1,4 @@
+'use strict'
 const test = require('brittle')
 const ALIASES = { // require('./constants') <-- throws an error when required
   keet: getKeys('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),

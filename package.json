@@ -1,21 +1,21 @@
 {
-  "name": "pear-url-parser",
+  "name": "pear-link",
   "version": "1.0.0",
-  "description": "Pear url parser",
+  "description": "Parse Pear Links",
   "main": "index.js",
   "scripts": {
     "test": "standard && brittle test/index.test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/holepunchto/pear-url-parser.git"
+    "url": "git+https://github.com/holepunchto/pear-link.git"
   },
-  "author": "holepunch",
+  "author": "Holepunch",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/holepunchto/pear-url-parser/issues"
+    "url": "https://github.com/holepunchto/pear-link/issues"
   },
-  "homepage": "https://github.com/holepunchto/pear-url-parser#readme",
+  "homepage": "https://github.com/holepunchto/pear-link#readme",
   "dependencies": {
     "hypercore-id-encoding": "^1.2.0"
   },
