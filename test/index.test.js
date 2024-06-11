@@ -1,5 +1,4 @@
 const test = require('brittle')
-const url = require('../index.js')
 const ALIASES = { // require('./constants') <-- throws an error when required
   keet: getKeys('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),
   runtime: getKeys('nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro')
@@ -11,6 +10,8 @@ function getKeys (z32) {
     hex: require('hypercore-id-encoding').decode(z32).toString('hex')
   }
 }
+
+const url = require('../index.js')(ALIASES)
 
 test('pear://key', t => {
   t.plan(5)
