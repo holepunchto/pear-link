@@ -43,12 +43,13 @@ test('pear://invalid-key', (t) => {
   }, /Error: Invalid Hypercore key/)
 })
 
-test('pear://alias', (t) => {
-  t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet')
+test('pear://<alias>', (t) => {
+  t.plan(6)
+  const { protocol, pathname, drive: { length, fork, key, alias } } = url('pear://keet')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
+  t.is(alias, 'keet')
   t.is(key.toString('hex'), ALIASES.keet.hex)
   t.absent(pathname)
 })

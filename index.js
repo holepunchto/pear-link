@@ -37,6 +37,7 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
       const parts = hostname.split('.').length
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
+        const alias = aliases[hostname] ? hostname : null
         return {
           protocol,
           pathname,
@@ -45,7 +46,8 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
             key: aliases[hostname]?.buffer || decode(hostname),
             length: 0,
             fork: null,
-            hash: null
+            hash: null,
+            alias
           }
         }
       }
@@ -54,11 +56,12 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
         throw error('Incorrect hostname')
       }
 
+      const alias = aliases[keyOrAlias] ? keyOrAlias : null
+
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         const isForkANumber = Number.isNaN(Number(fork))
         const isLengthANumber = Number.isNaN(Number(length))
         if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
-
         return {
           protocol,
           pathname,
@@ -67,12 +70,13 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
             key: aliases[keyOrAlias]?.buffer || decode(keyOrAlias),
             length: Number(length),
             fork: Number(fork),
-            hash: null
+            hash: null,
+            alias
           }
         }
       }
 
-      if (parts === 4) { // pear://fork.length.keyOrAlias.apphash[/some/path]
+      if (parts === 4) { // pear://fork.length.keyOrAlias.dhash[/some/path]
         const isForkANumber = Number.isNaN(Number(fork)) === false
         const isLengthANumber = Number.isNaN(Number(length)) === false
         if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
@@ -85,7 +89,8 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
             key: aliases[keyOrAlias]?.buffer || decode(keyOrAlias),
             length: Number(length),
             fork: Number(fork),
-            hash: decode(apphash)
+            hash: decode(apphash),
+            alias
           }
         }
       }
