@@ -16,9 +16,9 @@ function getKeys (z32) {
 
 const url = require('../index.js')(ALIASES)
 
-test('pear://key', (t) => {
+test('pear://<key>', (t) => {
   t.plan(5)
-  const { protocol, length, fork, key, pathname } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
+  const { protocol, pathname, drive: { length, fork, key } } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -28,7 +28,7 @@ test('pear://key', (t) => {
 
 test('pear://key/pathname', (t) => {
   t.plan(5)
-  const { protocol, length, fork, key, pathname } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
+  const { protocol, pathname, drive: { length, fork, key } } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -45,7 +45,7 @@ test('pear://invalid-key', (t) => {
 
 test('pear://alias', (t) => {
   t.plan(5)
-  const { protocol, length, fork, key, pathname } = url('pear://keet')
+  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -55,7 +55,29 @@ test('pear://alias', (t) => {
 
 test('pear://alias/path', (t) => {
   t.plan(5)
-  const { protocol, length, fork, key, pathname } = url('pear://keet/some/path')
+  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet/some/path')
+  t.is(protocol, 'pear:')
+  t.is(length, 0)
+  t.is(fork, null)
+  t.is(key.toString('hex'), ALIASES.keet.hex)
+  t.is(pathname, '/some/path')
+})
+
+test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
+  t.plan(7)
+  const { protocol, pathname, drive, hash } = url('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
+  t.is(pathname, '/some/path')
+  t.is(protocol, 'pear:')
+  t.is(hash, '#lochash')
+  t.is(drive.length, 2455)
+  t.is(drive.fork, 2)
+  t.is(drive.hash.toString('hex'), '0ff0113e98ecbfffbed445589f0860c1e9fa67f7edac6d65aa8707df2aec3357')
+  t.is(drive.key.toString('hex'), '0ff0113e98ecbfffbed445589f0860c1e9fa67f7edac6d65aa8707df2aec3357')
+})
+
+test('pear://alias/path', (t) => {
+  t.plan(5)
+  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -64,22 +86,25 @@ test('pear://alias/path', (t) => {
 })
 
 test('file:///path', (t) => {
-  t.plan(2)
-  const { protocol, pathname } = url('file:///path/to/file.js')
+  t.plan(3)
+  const { drive, protocol, pathname } = url('file:///path/to/file.js')
+  t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
 })
 
 test('relative path', (t) => {
-  t.plan(2)
-  const { protocol, pathname } = url('foobar')
+  t.plan(3)
+  const { drive, protocol, pathname } = url('foobar')
+  t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, cwd() + '/foobar')
 })
 
 test('absolute path', (t) => {
-  t.plan(2)
-  const { protocol, pathname } = url(cwd() + '/foobar')
+  t.plan(3)
+  const { drive, protocol, pathname } = url(cwd() + '/foobar')
+  t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, cwd() + '/foobar')
 })
