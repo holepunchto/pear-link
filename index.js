@@ -1,15 +1,21 @@
 'use strict'
+const { isBare } = require('which-runtime')
+const { cwd } = isBare ? require('bare-os') : process
 const { decode } = require('hypercore-id-encoding')
-
+const FILE = 'file:'
+const PEAR = 'pear:'
+const DOUB = '//'
 module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
   return function parse (url) {
+    if (!url) throw error('No link specified')
+    const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
+    const isRelativePath = isPath && url.startsWith('/') === false
     const {
       protocol,
       pathname,
       hostname
-    } = new URL(url)
-
-    if (protocol === 'file:') {
+    } = isRelativePath ? new URL(url, FILE + DOUB + cwd() + '/') : new URL(isPath ? FILE + DOUB + url : url)
+    if (protocol === FILE) {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
       if (!pathname) throw error('Path is missing')
@@ -18,7 +24,7 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
         protocol,
         pathname
       }
-    } else if (protocol === 'pear:') {
+    } else if (protocol === PEAR) {
       const [fork, length, keyOrAlias, hash] = hostname.split('.')
       const parts = hostname.split('.').length
 

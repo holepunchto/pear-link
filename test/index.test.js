@@ -1,4 +1,6 @@
 'use strict'
+const { isBare } = require('which-runtime')
+const { cwd } = isBare ? require('bare-os') : process
 const test = require('brittle')
 const ALIASES = { // require('./constants') <-- throws an error when required
   keet: getKeys('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),
@@ -14,7 +16,7 @@ function getKeys (z32) {
 
 const url = require('../index.js')(ALIASES)
 
-test('pear://key', t => {
+test('pear://key', (t) => {
   t.plan(5)
   const { protocol, length, fork, key, pathname } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
@@ -24,7 +26,7 @@ test('pear://key', t => {
   t.absent(pathname)
 })
 
-test('pear://key/pathname', t => {
+test('pear://key/pathname', (t) => {
   t.plan(5)
   const { protocol, length, fork, key, pathname } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
   t.is(protocol, 'pear:')
@@ -34,14 +36,14 @@ test('pear://key/pathname', t => {
   t.is(pathname, '/some/path.js')
 })
 
-test('pear://invalid-key', t => {
+test('pear://invalid-key', (t) => {
   t.plan(1)
   t.exception(() => {
     url('pear://some-invalid-key')
   }, /Error: Invalid Hypercore key/)
 })
 
-test('pear://alias', t => {
+test('pear://alias', (t) => {
   t.plan(5)
   const { protocol, length, fork, key, pathname } = url('pear://keet')
   t.is(protocol, 'pear:')
@@ -51,7 +53,7 @@ test('pear://alias', t => {
   t.absent(pathname)
 })
 
-test('pear://alias/path', t => {
+test('pear://alias/path', (t) => {
   t.plan(5)
   const { protocol, length, fork, key, pathname } = url('pear://keet/some/path')
   t.is(protocol, 'pear:')
@@ -61,33 +63,42 @@ test('pear://alias/path', t => {
   t.is(pathname, '/some/path')
 })
 
-test('file:///path', t => {
+test('file:///path', (t) => {
   t.plan(2)
   const { protocol, pathname } = url('file:///path/to/file.js')
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
 })
 
-test('file://non-root-path', t => {
+test('relative path', (t) => {
+  t.plan(2)
+  const { protocol, pathname } = url('foobar')
+  t.is(protocol, 'file:')
+  t.is(pathname, cwd() + '/foobar')
+})
+
+test('absolute path', (t) => {
+  t.plan(2)
+  const { protocol, pathname } = url(cwd() + '/foobar')
+  t.is(protocol, 'file:')
+  t.is(pathname, cwd() + '/foobar')
+})
+
+test('file://non-root-path', (t) => {
   t.plan(1)
   t.exception(() => {
     url('file://file.js')
   }, /Path needs to start from the root, "\/"/)
 })
 
-test('Unsupported protocol', t => {
+test('Unsupported protocol', (t) => {
   t.plan(1)
   t.exception(() => {
     url('someprotocol://thats-not-supported')
   }, /Protocol is not supported/)
 })
 
-test('No :// in url', t => {
+test('empty link', (t) => {
   t.plan(1)
-  try {
-    // Since this throws a TypeError, brittle does not catch it, and we need to try-catch
-    url('foobar')
-  } catch (err) {
-    t.ok(err.message.includes('Invalid URL'))
-  }
+  t.exception(() => { url() }, /No link specified/)
 })
