@@ -43,7 +43,7 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
           pathname,
           hash,
           drive: {
-            key: aliases[hostname]?.buffer || decode(hostname),
+            key: aliases[hostname] || decode(hostname),
             length: 0,
             fork: null,
             hash: null,
@@ -67,7 +67,7 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
           pathname,
           hash,
           drive: {
-            key: aliases[keyOrAlias]?.buffer || decode(keyOrAlias),
+            key: aliases[keyOrAlias] || decode(keyOrAlias),
             length: Number(length),
             fork: Number(fork),
             hash: null,
@@ -86,7 +86,7 @@ module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
           pathname,
           hash,
           drive: {
-            key: aliases[keyOrAlias]?.buffer || decode(keyOrAlias),
+            key: aliases[keyOrAlias] || decode(keyOrAlias),
             length: Number(length),
             fork: Number(fork),
             hash: decode(apphash),
