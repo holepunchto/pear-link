@@ -43,7 +43,7 @@ test('pear://<alias>', (t) => {
   t.is(length, 0)
   t.is(fork, null)
   t.is(alias, 'keet')
-  t.is(key.toString('hex'), ALIASES.keet.hex)
+  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.absent(pathname)
 })
 
@@ -53,7 +53,7 @@ test('pear://alias/path', (t) => {
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
-  t.is(key.toString('hex'), ALIASES.keet.hex)
+  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
 })
 
@@ -75,7 +75,7 @@ test('pear://alias/path', (t) => {
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
-  t.is(key.toString('hex'), ALIASES.keet.hex)
+  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
 })
 
