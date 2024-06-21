@@ -5,7 +5,7 @@ const { decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
-module.exports = (aliases, error = (msg) => { throw new Error(msg) }) => {
+module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
   return function parse (url) {
     if (!url) throw error('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false

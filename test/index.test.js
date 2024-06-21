@@ -1,24 +1,17 @@
 'use strict'
 const { isBare } = require('which-runtime')
 const { cwd } = isBare ? require('bare-os') : process
+const hypercoreid = require('hypercore-id-encoding')
 const test = require('brittle')
-const ALIASES = { // require('./constants') <-- throws an error when required
-  keet: getKeys('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),
-  runtime: getKeys('nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro')
+const ALIASES = {
+  keet: hypercoreid.decode('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),
+  runtime: hypercoreid.decode('nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro')
 }
-function getKeys (z32) {
-  return {
-    z32,
-    buffer: require('hypercore-id-encoding').decode(z32),
-    hex: require('hypercore-id-encoding').decode(z32).toString('hex')
-  }
-}
-
-const url = require('../index.js')(ALIASES)
+const pearLink = require('../index.js')(ALIASES)
 
 test('pear://<key>', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
+  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -28,7 +21,7 @@ test('pear://<key>', (t) => {
 
 test('pear://key/pathname', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = url('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
+  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -39,13 +32,13 @@ test('pear://key/pathname', (t) => {
 test('pear://invalid-key', (t) => {
   t.plan(1)
   t.exception(() => {
-    url('pear://some-invalid-key')
+    pearLink('pear://some-invalid-key')
   }, /Error: Invalid Hypercore key/)
 })
 
 test('pear://<alias>', (t) => {
   t.plan(6)
-  const { protocol, pathname, drive: { length, fork, key, alias } } = url('pear://keet')
+  const { protocol, pathname, drive: { length, fork, key, alias } } = pearLink('pear://keet')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -56,7 +49,7 @@ test('pear://<alias>', (t) => {
 
 test('pear://alias/path', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet/some/path')
+  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -66,7 +59,7 @@ test('pear://alias/path', (t) => {
 
 test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
   t.plan(7)
-  const { protocol, pathname, drive, hash } = url('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
+  const { protocol, pathname, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
   t.is(pathname, '/some/path')
   t.is(protocol, 'pear:')
   t.is(hash, '#lochash')
@@ -78,7 +71,7 @@ test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
 
 test('pear://alias/path', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = url('pear://keet/some/path')
+  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
@@ -88,7 +81,7 @@ test('pear://alias/path', (t) => {
 
 test('file:///path', (t) => {
   t.plan(3)
-  const { drive, protocol, pathname } = url('file:///path/to/file.js')
+  const { drive, protocol, pathname } = pearLink('file:///path/to/file.js')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
@@ -96,7 +89,7 @@ test('file:///path', (t) => {
 
 test('relative path', (t) => {
   t.plan(3)
-  const { drive, protocol, pathname } = url('foobar')
+  const { drive, protocol, pathname } = pearLink('foobar')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, cwd() + '/foobar')
@@ -104,7 +97,7 @@ test('relative path', (t) => {
 
 test('absolute path', (t) => {
   t.plan(3)
-  const { drive, protocol, pathname } = url(cwd() + '/foobar')
+  const { drive, protocol, pathname } = pearLink(cwd() + '/foobar')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, cwd() + '/foobar')
@@ -113,18 +106,18 @@ test('absolute path', (t) => {
 test('file://non-root-path', (t) => {
   t.plan(1)
   t.exception(() => {
-    url('file://file.js')
+    pearLink('file://file.js')
   }, /Path needs to start from the root, "\/"/)
 })
 
 test('Unsupported protocol', (t) => {
   t.plan(1)
   t.exception(() => {
-    url('someprotocol://thats-not-supported')
+    pearLink('someprotocol://thats-not-supported')
   }, /Protocol is not supported/)
 })
 
 test('empty link', (t) => {
   t.plan(1)
-  t.exception(() => { url() }, /No link specified/)
+  t.exception(() => { pearLink() }, /No link specified/)
 })
