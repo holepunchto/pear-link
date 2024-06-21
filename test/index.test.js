@@ -1,5 +1,6 @@
 'use strict'
-const { isBare } = require('which-runtime')
+const { isBare, isWindows } = require('which-runtime')
+const path = isBare ? require('bare-path') : require('path')
 const { cwd } = isBare ? require('bare-os') : process
 const hypercoreid = require('hypercore-id-encoding')
 const test = require('brittle')
@@ -92,7 +93,7 @@ test('relative path', (t) => {
   const { drive, protocol, pathname } = pearLink('foobar')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
-  t.is(pathname, cwd() + '/foobar')
+  t.is(isWindows ? path.normalize(pathname.slice(1)) : pathname, path.join(cwd(), 'foobar'))
 })
 
 test('absolute path', (t) => {
@@ -100,7 +101,7 @@ test('absolute path', (t) => {
   const { drive, protocol, pathname } = pearLink(cwd() + '/foobar')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
-  t.is(pathname, cwd() + '/foobar')
+  t.is(isWindows ? path.normalize(pathname.slice(1)) : pathname, path.join(cwd(), 'foobar'))
 })
 
 test('file://non-root-path', (t) => {
