@@ -98,7 +98,7 @@ test('relative path', (t) => {
 
 test('absolute path', (t) => {
   t.plan(3)
-  const abspath = (isWindows ? cwd().split(path.win32.sep).join(path.posix.sep) : cwd()) + '/foobar'
+  const abspath = (isWindows ? '/' + cwd().split(path.win32.sep).join(path.posix.sep) : cwd()) + '/foobar'
   const { drive, protocol, pathname } = pearLink(abspath)
   t.is(drive.key, null)
   t.is(protocol, 'file:')
