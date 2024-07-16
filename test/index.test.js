@@ -105,6 +105,15 @@ test('absolute path', (t) => {
   t.is(isWindows ? path.normalize(pathname.slice(1)) : pathname, path.join(cwd(), 'foobar'))
 })
 
+test('absolute drive-lettered win path', (t) => {
+  t.plan(3)
+  const abspath = 'D:\\abs\\path'
+  const { drive, protocol, pathname } = pearLink(abspath)
+  t.is(drive.key, null)
+  t.is(protocol, 'file:')
+  t.is(pathname, '/D:/abs/path')
+})
+
 test('file://non-root-path', (t) => {
   t.plan(1)
   t.exception(() => {

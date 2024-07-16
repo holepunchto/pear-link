@@ -9,7 +9,7 @@ module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
   return function parse (url) {
     if (!url) throw error('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
-    const isRelativePath = isPath && url.startsWith('/') === false
+    const isRelativePath = isPath && url[0] !== '/' && url[1] !== ':'
     const {
       protocol,
       pathname,
