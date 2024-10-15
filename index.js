@@ -1,6 +1,5 @@
 'use strict'
-const { isBare } = require('which-runtime')
-const { cwd } = isBare ? require('bare-os') : process
+const path = require('path')
 const { decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
@@ -15,7 +14,7 @@ module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
       pathname,
       hostname,
       hash
-    } = isRelativePath ? new URL(url, FILE + DOUB + cwd() + '/') : new URL(isPath ? FILE + DOUB + url : url)
+    } = isRelativePath ? new URL(url, FILE + DOUB + path.resolve('.') + '/') : new URL(isPath ? FILE + DOUB + url : url)
     if (protocol === FILE) {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
