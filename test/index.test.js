@@ -1,7 +1,6 @@
 'use strict'
-const { isBare, isWindows } = require('which-runtime')
-const path = isBare ? require('bare-path') : require('path')
-const { cwd } = isBare ? require('bare-os') : process
+const { isWindows } = require('which-runtime')
+const path = require('path')
 const hypercoreid = require('hypercore-id-encoding')
 const test = require('brittle')
 const ALIASES = {
@@ -132,3 +131,7 @@ test('empty link', (t) => {
   t.plan(1)
   t.exception(() => { pearLink() }, /No link specified/)
 })
+
+function cwd () {
+  return path.resolve('.')
+}
