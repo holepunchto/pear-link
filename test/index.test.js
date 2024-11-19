@@ -57,6 +57,14 @@ test('pear://alias/path', (t) => {
   t.is(pathname, '/some/path')
 })
 
+test('pear://<fork>.<length>.<key>', (t) => {
+  t.plan(3)
+  const { protocol, drive } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.is(protocol, 'pear:')
+  t.is(drive.length, 2455)
+  t.is(drive.fork, 2)
+})
+
 test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
   t.plan(7)
   const { protocol, pathname, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')

@@ -58,9 +58,7 @@ module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
-        const isForkANumber = Number.isNaN(Number(fork))
-        const isLengthANumber = Number.isNaN(Number(length))
-        if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
         return {
           protocol,
           pathname,
@@ -76,9 +74,7 @@ module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
       }
 
       if (parts === 4) { // pear://fork.length.keyOrAlias.dhash[/some/path]
-        const isForkANumber = Number.isNaN(Number(fork)) === false
-        const isLengthANumber = Number.isNaN(Number(length)) === false
-        if (!isForkANumber || !isLengthANumber) throw error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
 
         return {
           protocol,
