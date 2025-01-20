@@ -4,7 +4,7 @@ const { decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
-module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
+function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
   return function parse (url) {
     if (!url) throw error('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
@@ -96,3 +96,9 @@ module.exports = (aliases = {}, error = (msg) => { throw new Error(msg) }) => {
     throw error('Protocol is not supported')
   }
 }
+
+pearLink.normalize = (link) => {
+  return (link.endsWith(path.sep) ? link.slice(0, -1) : link).toLowerCase()
+}
+
+module.exports = pearLink
