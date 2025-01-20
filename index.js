@@ -98,7 +98,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 }
 
 pearLink.normalize = (link) => {
-  return (link.endsWith(path.sep) ? link.slice(0, -1) : link).toLowerCase()
+  return link.endsWith(path.sep) ? link.slice(0, -1) : link
 }
 
 module.exports = pearLink
