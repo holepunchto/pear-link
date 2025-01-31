@@ -98,7 +98,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 }
 
 pearLink.normalize = (link) => {
-  if (link.startsWith('file://')) { // if link has url format, separator is alway '/' even in Windows
+  if (link.startsWith('file://')) { // if link has url format, separator is always '/' even in Windows
     return link.endsWith('/') ? link.slice(0, -1) : link
   } else {
     return link.endsWith(path.sep) ? link.slice(0, -1) : link
