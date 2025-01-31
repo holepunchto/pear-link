@@ -8,6 +8,7 @@ const ALIASES = {
   runtime: hypercoreid.decode('nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro')
 }
 const pearLink = require('../index.js')(ALIASES)
+const normalize = require('../index.js').normalize
 
 test('pear://<key>', (t) => {
   t.plan(5)
@@ -138,6 +139,11 @@ test('Unsupported protocol', (t) => {
 test('empty link', (t) => {
   t.plan(1)
   t.exception(() => { pearLink() }, /No link specified/)
+})
+
+test('url link normalize', (t) => {
+  t.plan(1)
+  t.is(normalize('file://a/b/'), 'file://a/b')
 })
 
 function cwd () {
