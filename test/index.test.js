@@ -9,6 +9,7 @@ const ALIASES = {
 }
 const pearLink = require('../index.js')(ALIASES)
 const normalize = require('../index.js').normalize
+const root = require('../index.js').root
 
 test('pear://<key>', (t) => {
   t.plan(5)
@@ -144,6 +145,18 @@ test('empty link', (t) => {
 test('url link normalize', (t) => {
   t.plan(1)
   t.is(normalize('file://a/b/'), 'file://a/b')
+})
+
+test('url link root', (t) => {
+  t.plan(7)
+  t.is(root('pear://keet/nested/#fragment'), 'pear://keet')
+  t.is(root('file:///Users/user/app/'), 'file:///Users/user/app')
+  const link = 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
+  t.is(root(`${link}/`), link)
+  t.is(root(`${link}/#fragment`), link)
+  t.is(root(`${link}/nested`), link)
+  t.is(root(`${link}/nested/entrypoint.html`), link)
+  t.is(root(`${link}/nested/entrypoint.html#fragment`), link)
 })
 
 function cwd () {

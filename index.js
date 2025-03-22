@@ -105,4 +105,13 @@ pearLink.normalize = (link) => {
   }
 }
 
+pearLink.root = (link) => {
+  const url = new URL(link)
+  if (url.protocol === PEAR) {
+    return `${PEAR + DOUB}${url.hostname}`
+  } else {
+    return pearLink.normalize(link)
+  }
+}
+
 module.exports = pearLink
