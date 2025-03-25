@@ -106,7 +106,7 @@ pearLink.normalize = (link) => {
   }
 }
 
-pearLink.root = (link) => {
+pearLink.origin = (link) => {
   if (link.startsWith(PEAR + DOUB)) {
     const url = new URL(link)
     return `${PEAR + DOUB}${url.hostname}`

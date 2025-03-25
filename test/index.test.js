@@ -9,7 +9,7 @@ const ALIASES = {
 }
 const pearLink = require('../index.js')(ALIASES)
 const normalize = require('../index.js').normalize
-const root = require('../index.js').root
+const origin = require('../index.js').origin
 
 test('pear://<key>', (t) => {
   t.plan(5)
@@ -147,16 +147,11 @@ test('url link normalize', (t) => {
   t.is(normalize('file://a/b/'), 'file://a/b')
 })
 
-test('url link root', (t) => {
-  t.plan(7)
-  t.is(root('pear://keet/nested/#fragment'), 'pear://keet')
-  t.is(root('file:///Users/user/app/'), 'file:///Users/user/app')
-  const link = 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  t.is(root(`${link}/`), link)
-  t.is(root(`${link}/#fragment`), link)
-  t.is(root(`${link}/nested`), link)
-  t.is(root(`${link}/nested/entrypoint.html`), link)
-  t.is(root(`${link}/nested/entrypoint.html#fragment`), link)
+test('url link origin', (t) => {
+  t.plan(3)
+  t.is(origin('pear://keet/route/to/entry.html#fragment'), 'pear://keet')
+  t.is(origin('file:///Users/user/app/'), 'file:///Users/user/app')
+  t.is(origin('/Users/user/app/'), 'file:///Users/user/app')
 })
 
 function cwd () {
