@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
 const { pathToFileURL } = require('url-file-url')
-const { decode } = require('hypercore-id-encoding')
+const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
@@ -108,13 +108,19 @@ pearLink.normalize = (link) => {
 
 pearLink.origin = (link) => {
   if (link.startsWith(PEAR + DOUB)) {
-    const url = new URL(link)
-    return `${PEAR + DOUB}${url.hostname}`
+    try {
+      const key = encode(pearLink()(link).drive.key)
+      if (key) return `${PEAR + DOUB}${key}`
+    } catch (err) { // future-proof any alias
+      const url = new URL(link)
+      return `${PEAR + DOUB}${url.hostname}`
+    }
   }
   if (link.startsWith(FILE + DOUB)) {
     return pearLink.normalize(link)
+  } else {
+    return pearLink.normalize(pathToFileURL(link).href)
   }
-  return pearLink.normalize(pathToFileURL(link).href)
 }
 
 module.exports = pearLink
