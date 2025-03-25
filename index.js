@@ -1,5 +1,6 @@
 'use strict'
 const path = require('path')
+const { pathToFileURL } = require('url-file-url')
 const { decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
@@ -98,7 +99,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 }
 
 pearLink.normalize = (link) => {
-  if (link.startsWith('file://')) { // if link has url format, separator is always '/' even in Windows
+  if (link.startsWith(FILE + DOUB)) { // if link has url format, separator is always '/' even in Windows
     return link.endsWith('/') ? link.slice(0, -1) : link
   } else {
     return link.endsWith(path.sep) ? link.slice(0, -1) : link
@@ -106,12 +107,14 @@ pearLink.normalize = (link) => {
 }
 
 pearLink.root = (link) => {
-  const url = new URL(link)
-  if (url.protocol === PEAR) {
+  if (link.startsWith(PEAR + DOUB)) {
+    const url = new URL(link)
     return `${PEAR + DOUB}${url.hostname}`
-  } else {
+  }
+  if (link.startsWith(FILE + DOUB)) {
     return pearLink.normalize(link)
   }
+  return pearLink.normalize(pathToFileURL(link).href)
 }
 
 module.exports = pearLink
