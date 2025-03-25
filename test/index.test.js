@@ -148,10 +148,11 @@ test('url link normalize', (t) => {
 })
 
 test('url link origin', (t) => {
-  t.plan(3)
-  t.is(origin('pear://keet/route/to/entry.html#fragment'), 'pear://keet')
-  t.is(origin('file:///Users/user/app/'), 'file:///Users/user/app')
+  t.plan(4)
   t.is(origin('/Users/user/app/'), 'file:///Users/user/app')
+  t.is(origin('file:///Users/user/app/'), 'file:///Users/user/app')
+  t.is(origin('pear://keet/route/to/entry.js#fragment'), 'pear://keet')
+  t.is(origin('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash', 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo'))
 })
 
 function cwd () {
