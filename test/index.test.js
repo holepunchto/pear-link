@@ -9,26 +9,27 @@ const ALIASES = {
 }
 const pearLink = require('../index.js')(ALIASES)
 const normalize = require('../index.js').normalize
-const origin = require('../index.js').origin
 
 test('pear://<key>', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.absent(pathname)
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://key/pathname', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(pathname, '/some/path.js')
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://invalid-key', (t) => {
@@ -40,37 +41,41 @@ test('pear://invalid-key', (t) => {
 
 test('pear://<alias>', (t) => {
   t.plan(6)
-  const { protocol, pathname, drive: { length, fork, key, alias } } = pearLink('pear://keet')
+  const { protocol, pathname, origin, drive: { length, fork, key, alias } } = pearLink('pear://keet')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(alias, 'keet')
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.absent(pathname)
+  t.is(origin, 'pear://keet')
 })
 
 test('pear://alias/path', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://keet')
 })
 
 test('pear://<fork>.<length>.<key>', (t) => {
   t.plan(3)
-  const { protocol, drive } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  const { protocol, origin, drive } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.is(protocol, 'pear:')
   t.is(drive.length, 2455)
   t.is(drive.fork, 2)
+  t.is(origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
 })
 
 test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
   t.plan(7)
-  const { protocol, pathname, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
+  const { protocol, pathname, origin, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.is(protocol, 'pear:')
   t.is(hash, '#lochash')
   t.is(drive.length, 2455)
@@ -81,20 +86,22 @@ test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
 
 test('pear://alias/path', (t) => {
   t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://keet')
 })
 
 test('file:///path', (t) => {
   t.plan(3)
-  const { drive, protocol, pathname } = pearLink('file:///path/to/file.js')
+  const { drive, protocol, pathname, origin } = pearLink('file:///path/to/file.js')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
+  t.is(origin, 'file:///path/to/file.js')
 })
 
 test('relative path', (t) => {
@@ -147,22 +154,24 @@ test('url link normalize', (t) => {
   t.is(normalize('file://a/b/'), 'file://a/b')
 })
 
-test('url link origin', (t) => {
-  t.plan(4)
-  t.is(origin('file:///Users/user/app/'), 'file:///Users/user/app')
-  t.is(origin('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash'), 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
-  t.is(origin('pear://keet/route/to/entry.js#fragment'), 'pear://keet')
-  t.is(origin('pear://future'), 'pear://future')
+test('origin', (t) => {
+  t.plan(6)
+  t.is(pearLink('file:///Users/user/app/').origin, 'file:///Users/user/app')
+  t.is(pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash').origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.is(pearLink('pear://keet/route/to/entry.js#fragment').origin, 'pear://keet')
+  t.is(pearLink('pear://oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo').origin, 'pear://keet')
+  t.is(pearLink('pear://future').origin, 'pear://future')
+  t.is(pearLink('pear://future/route/to/entry.js#fragment').origin, 'pear://future')
 })
 
-test('Unix: url link origin', { skip: isWindows }, (t) => {
+test('origin: Unix', { skip: isWindows }, (t) => {
   t.plan(1)
-  t.is(origin('/Users/user/app/'), 'file:///Users/user/app')
+  t.is(pearLink('/Users/user/app/').origin, 'file:///Users/user/app')
 })
 
-test('Windows: url link origin', { skip: !isWindows }, (t) => {
+test('origin: Windows', { skip: !isWindows }, (t) => {
   t.plan(1)
-  t.is(origin('C:\\Users\\user\\app\\'), 'file:///C:/Users/user/app')
+  t.is(pearLink('C:\\Users\\user\\app\\').origin, 'file:///C:/Users/user/app')
 })
 
 function cwd () {
