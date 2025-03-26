@@ -26,7 +26,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
         protocol,
         pathname,
         hash,
-        origin: url.startsWith(FILE + DOUB) ? pearLink.normalize(url) : pearLink.normalize(pathToFileURL(url).href),
+        origin: !isPath ? pearLink.normalize(url) : pearLink.normalize(pathToFileURL(url).href),
         drive: {
           key: null,
           length: null,
