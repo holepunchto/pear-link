@@ -40,7 +40,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
         const key = aliases[hostname] || decode(hostname)
-        const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${key.toString('hex')}`
+        const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${hostname}`
         const alias = aliases[hostname] ? hostname : null
         return {
           protocol,
