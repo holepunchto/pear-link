@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
 const { pathToFileURL } = require('url-file-url')
-const { decode } = require('hypercore-id-encoding')
+const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
@@ -63,7 +63,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
       const key = aliases[keyOrAlias] || decode(keyOrAlias)
-      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${keyOrAlias}`
+      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${encode(key)}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
