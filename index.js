@@ -1,6 +1,6 @@
 'use strict'
 const path = require('path')
-const { decode, normalize } = require('hypercore-id-encoding')
+const { decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
@@ -39,7 +39,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
         const key = aliases[hostname] || decode(hostname)
-        const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${normalize(key)}`
+        const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${key.toString('hex')}`
         const alias = aliases[hostname] ? hostname : null
         return {
           protocol,
@@ -62,7 +62,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
       const key = aliases[keyOrAlias] || decode(keyOrAlias)
-      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${normalize(key)}`
+      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${key.toString('hex')}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
