@@ -25,6 +25,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
         protocol,
         pathname,
         hash,
+        origin,
         drive: {
           key: null,
           length: null,
@@ -42,6 +43,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
           protocol,
           pathname,
           hash,
+          origin,
           drive: {
             key: aliases[hostname] || decode(hostname),
             length: 0,
@@ -64,6 +66,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
           protocol,
           pathname,
           hash,
+          origin,
           drive: {
             key: aliases[keyOrAlias] || decode(keyOrAlias),
             length: Number(length),
@@ -81,6 +84,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
           protocol,
           pathname,
           hash,
+          origin,
           drive: {
             key: aliases[keyOrAlias] || decode(keyOrAlias),
             length: Number(length),
@@ -103,23 +107,6 @@ pearLink.normalize = (link) => {
     return link.endsWith('/') ? link.slice(0, -1) : link
   } else {
     return link.endsWith(path.sep) ? link.slice(0, -1) : link
-  }
-}
-
-pearLink.origin = (link) => {
-  if (link.startsWith(PEAR + DOUB)) {
-    try {
-      const key = encode(pearLink()(link).drive.key)
-      if (key) return `${PEAR + DOUB}${key}`
-    } catch (err) { // future-proof any alias
-      const url = new URL(link)
-      return `${PEAR + DOUB}${url.hostname}`
-    }
-  }
-  if (link.startsWith(FILE + DOUB)) {
-    return pearLink.normalize(link)
-  } else {
-    return pearLink.normalize(pathToFileURL(link).href)
   }
 }
 
