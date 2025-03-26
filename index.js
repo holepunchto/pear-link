@@ -62,7 +62,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
       const key = aliases[keyOrAlias] || decode(keyOrAlias)
-      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${key.toString('hex')}`
+      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
