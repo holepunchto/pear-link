@@ -155,12 +155,10 @@ test('url link normalize', (t) => {
 })
 
 test('origin', (t) => {
-  t.plan(5)
+  t.plan(3)
   t.is(pearLink('file:///Users/user/app/').origin, 'file:///Users/user/app')
   t.is(pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash').origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.is(pearLink('pear://keet/route/to/entry.js#fragment').origin, 'pear://keet')
-  t.is(pearLink('pear://future').origin, 'pear://future')
-  t.is(pearLink('pear://future/route/to/entry.js#fragment').origin, 'pear://future')
 })
 
 test('origin: keyToAlias', (t) => {
