@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
 const { pathToFileURL } = require('url-file-url')
-const { decode } = require('hypercore-id-encoding')
+const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
@@ -10,7 +10,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
     if (!url) throw error('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
     const isRelativePath = isPath && url[0] !== '/' && url[1] !== ':'
-    const keyToAlias = key => Object.keys(aliases).find(alias => aliases[alias].equals(key))
+    const keys = Object.fromEntries(Object.entries(aliases).map(([k, v]) => [encode(v), k]))
     const {
       protocol,
       pathname,
@@ -40,7 +40,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
         const key = aliases[hostname] || decode(hostname)
-        const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${hostname}`
+        const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${hostname}`
         const alias = aliases[hostname] ? hostname : null
         return {
           protocol,
@@ -63,7 +63,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
 
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
       const key = aliases[keyOrAlias] || decode(keyOrAlias)
-      const origin = keyToAlias(key) ? `${protocol}//${keyToAlias(key)}` : `${protocol}//${keyOrAlias}`
+      const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
