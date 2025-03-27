@@ -28,6 +28,7 @@
   "homepage": "https://github.com/holepunchto/pear-link#readme",
   "dependencies": {
     "hypercore-id-encoding": "^1.2.0",
+    "url-file-url": "^1.0.5",
     "which-runtime": "^1.2.1"
   },
   "devDependencies": {

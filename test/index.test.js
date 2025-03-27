@@ -11,23 +11,25 @@ const pearLink = require('../index.js')(ALIASES)
 const normalize = require('../index.js').normalize
 
 test('pear://<key>', (t) => {
-  t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
+  t.plan(6)
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.absent(pathname)
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://key/pathname', (t) => {
-  t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
+  t.plan(6)
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2/some/path.js')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(pathname, '/some/path.js')
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://invalid-key', (t) => {
@@ -38,38 +40,42 @@ test('pear://invalid-key', (t) => {
 })
 
 test('pear://<alias>', (t) => {
-  t.plan(6)
-  const { protocol, pathname, drive: { length, fork, key, alias } } = pearLink('pear://keet')
+  t.plan(7)
+  const { protocol, pathname, origin, drive: { length, fork, key, alias } } = pearLink('pear://keet')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(alias, 'keet')
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.absent(pathname)
+  t.is(origin, 'pear://keet')
 })
 
 test('pear://alias/path', (t) => {
-  t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
+  t.plan(6)
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://keet')
 })
 
 test('pear://<fork>.<length>.<key>', (t) => {
-  t.plan(3)
-  const { protocol, drive } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.plan(4)
+  const { protocol, origin, drive } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.is(protocol, 'pear:')
   t.is(drive.length, 2455)
   t.is(drive.fork, 2)
+  t.is(origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
 })
 
 test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
-  t.plan(7)
-  const { protocol, pathname, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
+  t.plan(8)
+  const { protocol, pathname, origin, drive, hash } = pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash')
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.is(protocol, 'pear:')
   t.is(hash, '#lochash')
   t.is(drive.length, 2455)
@@ -79,21 +85,23 @@ test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
 })
 
 test('pear://alias/path', (t) => {
-  t.plan(5)
-  const { protocol, pathname, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
+  t.plan(6)
+  const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
   t.is(length, 0)
   t.is(fork, null)
   t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
   t.is(pathname, '/some/path')
+  t.is(origin, 'pear://keet')
 })
 
 test('file:///path', (t) => {
-  t.plan(3)
-  const { drive, protocol, pathname } = pearLink('file:///path/to/file.js')
+  t.plan(4)
+  const { drive, protocol, pathname, origin } = pearLink('file:///path/to/file.js')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
+  t.is(origin, 'file:///path/to/file.js')
 })
 
 test('relative path', (t) => {
@@ -144,6 +152,30 @@ test('empty link', (t) => {
 test('url link normalize', (t) => {
   t.plan(1)
   t.is(normalize('file://a/b/'), 'file://a/b')
+})
+
+test('origin', (t) => {
+  t.plan(3)
+  t.is(pearLink('file:///Users/user/app/').origin, 'file:///Users/user/app')
+  t.is(pearLink('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash').origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.is(pearLink('pear://keet/route/to/entry.js#fragment').origin, 'pear://keet')
+})
+
+test('origin: keyToAlias', (t) => {
+  t.plan(3)
+  t.is(pearLink('pear://oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo').origin, 'pear://keet')
+  t.is(pearLink('pear://oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo/route/to/entry.js#fragment').origin, 'pear://keet')
+  t.is(pearLink('pear://nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro').origin, 'pear://runtime')
+})
+
+test('origin: Unix', { skip: isWindows }, (t) => {
+  t.plan(1)
+  t.is(pearLink('/Users/user/app/').origin, 'file:///Users/user/app')
+})
+
+test('origin: Windows', { skip: !isWindows }, (t) => {
+  t.plan(1)
+  t.is(pearLink('C:\\Users\\user\\app\\').origin, 'file:///C:/Users/user/app')
 })
 
 function cwd () {
