@@ -49,7 +49,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
           origin,
           drive: {
             key,
-            length: 0,
+            length: null,
             fork: null,
             hash: null,
             alias
