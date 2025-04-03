@@ -1,6 +1,6 @@
 {
   "name": "pear-link",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Parse Pear Links",
   "main": "index.js",
   "scripts": {
