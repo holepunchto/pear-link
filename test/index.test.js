@@ -51,7 +51,7 @@ test('pear://<alias>', (t) => {
   t.is(origin, 'pear://keet')
 })
 
-test.solo('pear://alias/path', (t) => {
+test('pear://alias/path', (t) => {
   t.plan(6)
   const { protocol, pathname, origin, drive: { length, fork, key } } = pearLink('pear://keet/some/path')
   t.is(protocol, 'pear:')
