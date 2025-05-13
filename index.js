@@ -5,9 +5,22 @@ const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
-function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
-  return function parse (url) {
-    if (!url) throw error('No link specified')
+
+module.exports = class PearLink {
+  constructor (aliases = {}, E = Error) {
+    this.aliases = aliases
+    this.Error = E
+  }
+
+  normalize (link) {
+    // if link has url format, separator is always '/' even in Windows
+    if (link.startsWith(FILE + DOUB)) return link.endsWith('/') ? link.slice(0, -1) : link
+    else return link.endsWith(path.sep) ? link.slice(0, -1) : link
+  }
+
+  parse (url) {
+    const { aliases, Error } = this
+    if (!url) throw new Error('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
     const isRelativePath = isPath && url[0] !== '/' && url[1] !== ':'
     const keys = Object.fromEntries(Object.entries(aliases).map(([k, v]) => [encode(v), k]))
@@ -15,18 +28,20 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
       protocol,
       pathname,
       hostname,
+      search,
       hash
     } = isRelativePath ? new URL(url, FILE + DOUB + path.resolve('.') + '/') : new URL(isPath ? FILE + DOUB + url : url)
     if (protocol === FILE) {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
-      if (!pathname) throw error('Path is missing')
-      if (!startsWithRoot) throw error('Path needs to start from the root, "/"')
+      if (!pathname) throw new Error('Path is missing')
+      if (!startsWithRoot) throw new Error('Path needs to start from the root, "/"')
       return {
         protocol,
         pathname,
+        search,
         hash,
-        origin: !isPath ? pearLink.normalize(url) : pearLink.normalize(pathToFileURL(url).href),
+        origin: !isPath ? this.normalize(url) : this.normalize(pathToFileURL(url).href),
         drive: {
           key: null,
           length: null,
@@ -45,6 +60,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
         return {
           protocol,
           pathname,
+          search,
           hash,
           origin,
           drive: {
@@ -58,7 +74,7 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
       }
 
       if (parts === 2) { // pear://fork.length[/some/path]
-        throw error('Incorrect hostname')
+        throw new Error('Incorrect hostname')
       }
 
       const alias = aliases[keyOrAlias] ? keyOrAlias : null
@@ -66,10 +82,11 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
       const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw new Error('Incorrect hostname')
         return {
           protocol,
           pathname,
+          search,
           hash,
           origin,
           drive: {
@@ -83,11 +100,12 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
       }
 
       if (parts === 4) { // pear://fork.length.keyOrAlias.dhash[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw new Error('Incorrect hostname')
 
         return {
           protocol,
           pathname,
+          search,
           hash,
           origin,
           drive: {
@@ -100,19 +118,9 @@ function pearLink (aliases = {}, error = (msg) => { throw new Error(msg) }) {
         }
       }
 
-      throw error('Incorrect hostname')
+      throw new Error('Incorrect hostname')
     }
 
-    throw error('Protocol is not supported')
+    throw new Error('Protocol is not supported')
   }
 }
-
-pearLink.normalize = (link) => {
-  if (link.startsWith(FILE + DOUB)) { // if link has url format, separator is always '/' even in Windows
-    return link.endsWith('/') ? link.slice(0, -1) : link
-  } else {
-    return link.endsWith(path.sep) ? link.slice(0, -1) : link
-  }
-}
-
-module.exports = pearLink
