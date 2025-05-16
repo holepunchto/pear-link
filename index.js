@@ -41,7 +41,7 @@ module.exports = class PearLink {
         pathname,
         search,
         hash,
-        origin: !isPath ? this.normalize(url) : this.normalize(pathToFileURL(url).href),
+        origin: !isPath ? this.normalize(`${protocol}//${hostname}${pathname}`) : this.normalize(pathToFileURL(url).href),
         drive: {
           key: null,
           length: null,

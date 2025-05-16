@@ -154,11 +154,20 @@ test('url link normalize', (t) => {
   t.is(plink.normalize('file://a/b/'), 'file://a/b')
 })
 
-test('origin', (t) => {
-  t.plan(3)
+test('origin: file://', (t) => {
+  t.plan(4)
+  t.is(plink.parse('file:///Users/user/app').origin, 'file:///Users/user/app')
   t.is(plink.parse('file:///Users/user/app/').origin, 'file:///Users/user/app')
-  t.is(plink.parse('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash').origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.is(plink.parse('file:///Users/user/app/#fragment').origin, 'file:///Users/user/app')
+  t.is(plink.parse('file:///Users/user/app#fragment').origin, 'file:///Users/user/app')
+})
+
+test('origin: pear://', (t) => {
+  t.plan(4)
+  t.is(plink.parse('pear://keet').origin, 'pear://keet')
+  t.is(plink.parse('pear://keet#fragment').origin, 'pear://keet')
   t.is(plink.parse('pear://keet/route/to/entry.js#fragment').origin, 'pear://keet')
+  t.is(plink.parse('pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash').origin, 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
 })
 
 test('origin: keyToAlias', (t) => {
