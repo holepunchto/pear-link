@@ -1,6 +1,5 @@
 'use strict'
 const path = require('path')
-const { pathToFileURL } = require('url-file-url')
 const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
@@ -41,7 +40,7 @@ module.exports = class PearLink {
         pathname,
         search,
         hash,
-        origin: !isPath ? this.normalize(`${protocol}//${hostname}${pathname}`) : this.normalize(pathToFileURL(url).href),
+        origin: this.normalize(`${protocol}//${hostname}${pathname}`),
         drive: {
           key: null,
           length: null,
