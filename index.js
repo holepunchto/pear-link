@@ -17,6 +17,18 @@ module.exports = class PearLink {
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
 
+  serialize ({ protocol, pathname, search = '', hash = '', drive }) {
+    if (protocol === FILE) return `${protocol}//${pathname}${search}${hash}`
+
+    if (protocol === PEAR) {
+      const key = drive.alias || encode(drive.key)
+      const base = [drive.fork, drive.length, key, drive.hash && encode(drive.hash)].filter(Boolean).join('.')
+      return `${protocol}//${base}${pathname}${search}${hash}`
+    }
+
+    throw new this.Error('Unsupported protocol')
+  }
+
   parse (url) {
     const { aliases, Error } = this
     if (!url) throw new Error('No link specified')

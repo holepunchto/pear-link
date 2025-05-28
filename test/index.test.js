@@ -149,9 +149,18 @@ test('empty link', (t) => {
   t.exception(() => { plink.parse() }, /No link specified/)
 })
 
-test('url link normalize', (t) => {
+test('plink.normalize', (t) => {
   t.plan(1)
-  t.is(plink.normalize('file://a/b/'), 'file://a/b')
+  t.is(plink.normalize('file:///a/b/'), 'file:///a/b')
+})
+
+test('plink.serialize', (t) => {
+  t.plan(5)
+  t.is(plink.serialize(plink.parse('file:///a/b')), 'file:///a/b')
+  t.is(plink.serialize(plink.parse('/a/b')), 'file:///a/b')
+  t.is(plink.serialize(plink.parse('/a/b?query')), 'file:///a/b?query')
+  t.is(plink.serialize(plink.parse('pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query')), 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query')
+  t.exception(() => plink.serialize('http://example.com'), /Unsupported/)
 })
 
 test('origin: file://', (t) => {
