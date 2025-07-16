@@ -22,7 +22,7 @@ module.exports = class PearLink {
 
     if (protocol === PEAR) {
       const key = drive.alias || encode(drive.key)
-      const base = [drive.fork, drive.length, key, drive.hash && encode(drive.hash)].filter(Boolean).join('.')
+      const base = [drive.fork, drive.length, key, drive.hash && encode(drive.hash)].filter((p) => (p ?? '') + '').join('.')
       return `${protocol}//${base}${pathname}${search}${hash}`
     }
 
