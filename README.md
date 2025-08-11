@@ -24,20 +24,12 @@ mark (`?`).
 
 ## API
 
-### `PearLink`
+### `const plink = require('pear-link')`
 
-#### `const plink = new PearLink(aliases = {}, error = Error)`
+Exports a singleton with methods `parse`, `serialize` and `normalize`.
 
-Create a new Pear link parser. `aliases` is a map between an alias and its keys. For example the following would be the aliases map for Keet and the Pear Runtime:
+Supports aliases per [`pear-aliases`](https://github.com/holepunchto/pear-aliases).
 
-```
-{
-  keet: hypercoreid.decode('oeeoz3w6fjjt7bym3ndpa6hhicm8f8naxyk11z4iypeoupn6jzpo'),
-  runtime: hypercoreid.decode('nkw138nybdx6mtf98z497czxogzwje5yzu585c66ofba854gw3ro')
-}
-```
-
-`error` is a constructor for errors to be thrown by the parser. Defaults to the `Error()` constructor.
 
 #### `const { protocol, pathname, search, hash, origin, drive } = plink.parse(url)`
 
