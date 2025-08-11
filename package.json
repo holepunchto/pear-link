@@ -36,6 +36,7 @@
   "devDependencies": {
     "bare-path": "^3.0.0",
     "brittle": "^3.4.1",
-    "standard": "^17.1.0"
+    "standard": "^17.1.0",
+    "url-file-url": "^1.0.5"
   }
 }

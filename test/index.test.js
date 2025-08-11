@@ -2,9 +2,124 @@
 const { isWindows } = require('which-runtime')
 const path = require('path')
 const test = require('brittle')
+const { ERR_INVALID_LINK } = require('pear-errors')
 const { ALIASES } = require('pear-aliases')
 const { encode } = require('hypercore-id-encoding')
+const { pathToFileURL } = require('url-file-url')
 const plink = require('..')
+
+test('./some/path/to/a/file.js', async function (t) {
+  t.plan(7)
+  const res = plink.parse('./some/path/to/a/file.js')
+  t.is(res.protocol, 'file:')
+  t.is(res.pathname, pathToFileURL('./some/path/to/a/file.js').pathname)
+  t.is(res.hash, '')
+  t.is(res.drive.key, null)
+  t.is(res.drive.length, null)
+  t.is(res.drive.fork, null)
+  t.is(res.drive.hash, null)
+})
+
+test('file:///some/path/to/a/file.js', async function (t) {
+  t.plan(7)
+  const res = plink.parse('file:///some/path/to/a/file.js')
+  t.is(res.protocol, 'file:')
+  t.is(res.pathname, '/some/path/to/a/file.js')
+  t.is(res.hash, '')
+  t.is(res.drive.key, null)
+  t.is(res.drive.length, null)
+  t.is(res.drive.fork, null)
+  t.is(res.drive.hash, null)
+})
+
+test('pear://key', async function (t) {
+  t.plan(8)
+  const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
+  const res = plink.parse(`pear://${key}`)
+  t.is(res.protocol, 'pear:')
+  t.is(res.pathname, '')
+  t.is(res.hash, '')
+  t.is(res.drive.key.toString('hex'), key)
+  t.is(res.drive.length, null)
+  t.is(res.drive.fork, null)
+  t.is(res.drive.hash, null)
+  t.is(res.drive.alias, null)
+})
+
+test('pear://alias', async function (t) {
+  t.plan(24)
+  const aliases = ['keet', 'runtime', 'doctor']
+  for (const alias of aliases) {
+    const res = plink.parse(`pear://${alias}`)
+    t.is(res.protocol, 'pear:')
+    t.is(res.pathname, '')
+    t.is(res.hash, '')
+    t.is(res.drive.key, ALIASES[alias])
+    t.is(res.drive.length, null)
+    t.is(res.drive.fork, null)
+    t.is(res.drive.hash, null)
+    t.is(res.drive.alias, alias)
+  }
+})
+
+test('pear://fork.length.key', async function (t) {
+  t.plan(8)
+  const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
+  const res = plink.parse(`pear://123.456.${key}`)
+  t.is(res.protocol, 'pear:')
+  t.is(res.pathname, '')
+  t.is(res.hash, '')
+  t.is(res.drive.key.toString('hex'), key)
+  t.is(res.drive.length, 456)
+  t.is(res.drive.fork, 123)
+  t.is(res.drive.hash, null)
+  t.is(res.drive.alias, null)
+})
+
+test('alias pear://fork.length.alias', async function (t) {
+  t.plan(24)
+  const aliases = ['keet', 'runtime', 'doctor']
+  for (const alias of aliases) {
+    const res = plink.parse(`pear://123.456.${alias}`)
+    t.is(res.protocol, 'pear:')
+    t.is(res.pathname, '')
+    t.is(res.hash, '')
+    t.is(res.drive.key, ALIASES[alias])
+    t.is(res.drive.length, 456)
+    t.is(res.drive.fork, 123)
+    t.is(res.drive.hash, null)
+    t.is(res.drive.alias, alias)
+  }
+})
+
+test('pear://fork.length.key.dhash', async function (t) {
+  t.plan(8)
+  const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
+  const dhash = '38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'
+  const res = plink.parse(`pear://123.456.${key}.${dhash}`)
+  t.is(res.protocol, 'pear:')
+  t.is(res.pathname, '')
+  t.is(res.hash, '')
+  t.is(res.drive.key.toString('hex'), key)
+  t.is(res.drive.length, 456)
+  t.is(res.drive.fork, 123)
+  t.is(res.drive.hash.toString('hex'), dhash)
+  t.is(res.drive.alias, null)
+})
+
+test('invalid link', async function (t) {
+  t.plan(10)
+  t.exception(() => plink.parse(), ERR_INVALID_LINK())
+  t.exception(() => plink.parse(''), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://invalid-key'))
+  t.exception(() => plink.parse('pear://a.b.c.d.e'))
+  t.exception(() => plink.parse('pear://123.456'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://nan.123.keet'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://nan.123.keet.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('unsupport://abc'), ERR_INVALID_LINK())
+})
 
 test('pear://<key>', (t) => {
   t.plan(6)
