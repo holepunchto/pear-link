@@ -1,16 +1,13 @@
 'use strict'
 const path = require('path')
+const { ERR_INVALID_LINK } = require('pear-errors')
+const { ALIASES } = require('pear-aliases')
 const { encode, decode } = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
 
-module.exports = class PearLink {
-  constructor (aliases = {}, E = Error) {
-    this.aliases = aliases
-    this.Error = E
-  }
-
+class PearLink {
   normalize (link) {
     // if link has url format, separator is always '/' even in Windows
     if (link.startsWith(FILE + DOUB)) return link.endsWith('/') ? link.slice(0, -1) : link
@@ -26,15 +23,14 @@ module.exports = class PearLink {
       return `${protocol}//${base}${pathname}${search}${hash}`
     }
 
-    throw new this.Error('Unsupported protocol')
+    throw ERR_INVALID_LINK('Unsupported protocol')
   }
 
   parse (url) {
-    const { aliases, Error } = this
-    if (!url) throw new Error('No link specified')
+    if (!url) throw ERR_INVALID_LINK('No link specified')
     const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
     const isRelativePath = isPath && url[0] !== '/' && url[1] !== ':'
-    const keys = Object.fromEntries(Object.entries(aliases).map(([k, v]) => [encode(v), k]))
+    const keys = Object.fromEntries(Object.entries(ALIASES).map(([k, v]) => [encode(v), k]))
     const {
       protocol,
       pathname,
@@ -45,8 +41,8 @@ module.exports = class PearLink {
     if (protocol === FILE) {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
-      if (!pathname) throw new Error('Path is missing')
-      if (!startsWithRoot) throw new Error('Path needs to start from the root, "/"')
+      if (!pathname) throw ERR_INVALID_LINK('Path is missing')
+      if (!startsWithRoot) throw ERR_INVALID_LINK('Path needs to start from the root, "/"')
       return {
         protocol,
         pathname,
@@ -65,9 +61,9 @@ module.exports = class PearLink {
       const parts = hostname.split('.').length
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
-        const key = aliases[hostname] || decode(hostname)
+        const key = ALIASES[hostname] || decode(hostname)
         const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${hostname}`
-        const alias = aliases[hostname] ? hostname : null
+        const alias = ALIASES[hostname] ? hostname : null
         return {
           protocol,
           pathname,
@@ -85,15 +81,15 @@ module.exports = class PearLink {
       }
 
       if (parts === 2) { // pear://fork.length[/some/path]
-        throw new Error('Incorrect hostname')
+        throw ERR_INVALID_LINK('Incorrect hostname')
       }
 
-      const alias = aliases[keyOrAlias] ? keyOrAlias : null
-      const key = aliases[keyOrAlias] || decode(keyOrAlias)
+      const alias = ALIASES[keyOrAlias] ? keyOrAlias : null
+      const key = ALIASES[keyOrAlias] || decode(keyOrAlias)
       const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw new Error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname')
         return {
           protocol,
           pathname,
@@ -111,7 +107,7 @@ module.exports = class PearLink {
       }
 
       if (parts === 4) { // pear://fork.length.keyOrAlias.dhash[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw new Error('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname')
 
         return {
           protocol,
@@ -129,9 +125,11 @@ module.exports = class PearLink {
         }
       }
 
-      throw new Error('Incorrect hostname')
+      throw ERR_INVALID_LINK('Incorrect hostname')
     }
 
-    throw new Error('Protocol is not supported')
+    throw ERR_INVALID_LINK('Protocol is not supported')
   }
 }
+
+module.exports = new PearLink()

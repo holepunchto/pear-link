@@ -20,6 +20,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm test
     - run: npm install -g bare-runtime
-    - run: npm run test:bare
+    - run: npm run lint
+    - run: npm test
+    - run: npm run test:node
