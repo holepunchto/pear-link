@@ -2,14 +2,24 @@
 const path = require('path')
 const { ERR_INVALID_LINK } = require('pear-errors')
 const { ALIASES } = require('pear-aliases')
-const { encode, decode } = require('hypercore-id-encoding')
+const hypercoreid = require('hypercore-id-encoding')
+const { encode } = hypercoreid
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
 
+function decode (v, info = {}) {
+  try {
+    return hypercoreid.decode(v)
+  } catch (err) {
+    if (typeof v === 'string') throw ERR_INVALID_LINK('alias not found: "' + v + '"', { ...info, err })
+    throw err
+  }
+}
+
 class PearLink {
   normalize (link) {
-    // if link has url format, separator is always '/' even in Windows
+    // if link has link format, separator is always '/' even in Windows
     if (link.startsWith(FILE + DOUB)) return link.endsWith('/') ? link.slice(0, -1) : link
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
@@ -23,13 +33,13 @@ class PearLink {
       return `${protocol}//${base}${pathname}${search}${hash}`
     }
 
-    throw ERR_INVALID_LINK('Unsupported protocol')
+    throw ERR_INVALID_LINK('Unsupported protocol', { protocol, pathname, search, hash, drive })
   }
 
-  parse (url) {
-    if (!url) throw ERR_INVALID_LINK('No link specified')
-    const isPath = url.startsWith(PEAR + DOUB) === false && url.startsWith(FILE + DOUB) === false
-    const isRelativePath = isPath && url[0] !== '/' && url[1] !== ':'
+  parse (link) {
+    if (!link) throw ERR_INVALID_LINK('No link specified', { link })
+    const isPath = link.startsWith(PEAR + DOUB) === false && link.startsWith(FILE + DOUB) === false
+    const isRelativePath = isPath && link[0] !== '/' && link[1] !== ':'
     const keys = Object.fromEntries(Object.entries(ALIASES).map(([k, v]) => [encode(v), k]))
     const {
       protocol,
@@ -37,12 +47,13 @@ class PearLink {
       hostname,
       search,
       hash
-    } = isRelativePath ? new URL(url, FILE + DOUB + path.resolve('.') + '/') : new URL(isPath ? FILE + DOUB + url : url)
+    } = isRelativePath ? new URL(link, FILE + DOUB + path.resolve('.') + '/') : new URL(isPath ? FILE + DOUB + link : link)
+    const info = { link, protocol, hostname, pathname, search, hash }
     if (protocol === FILE) {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
-      if (!pathname) throw ERR_INVALID_LINK('Path is missing')
-      if (!startsWithRoot) throw ERR_INVALID_LINK('Path needs to start from the root, "/"')
+      if (!pathname) throw ERR_INVALID_LINK('Path is missing', info)
+      if (!startsWithRoot) throw ERR_INVALID_LINK('Path needs to start from the root, "/"', info)
       return {
         protocol,
         pathname,
@@ -61,7 +72,7 @@ class PearLink {
       const parts = hostname.split('.').length
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
-        const key = ALIASES[hostname] || decode(hostname)
+        const key = ALIASES[hostname] || decode(hostname, info)
         const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${hostname}`
         const alias = ALIASES[hostname] ? hostname : null
         return {
@@ -81,15 +92,15 @@ class PearLink {
       }
 
       if (parts === 2) { // pear://fork.length[/some/path]
-        throw ERR_INVALID_LINK('Incorrect hostname')
+        throw ERR_INVALID_LINK('Incorrect hostname', info)
       }
 
       const alias = ALIASES[keyOrAlias] ? keyOrAlias : null
-      const key = ALIASES[keyOrAlias] || decode(keyOrAlias)
+      const key = ALIASES[keyOrAlias] || decode(keyOrAlias, info)
       const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname', info)
         return {
           protocol,
           pathname,
@@ -107,7 +118,7 @@ class PearLink {
       }
 
       if (parts === 4) { // pear://fork.length.keyOrAlias.dhash[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname')
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname', info)
 
         return {
           protocol,
@@ -119,16 +130,16 @@ class PearLink {
             key,
             length: Number(length),
             fork: Number(fork),
-            hash: decode(apphash),
+            hash: hypercoreid.decode(apphash),
             alias
           }
         }
       }
 
-      throw ERR_INVALID_LINK('Incorrect hostname')
+      throw ERR_INVALID_LINK('Incorrect hostname', info)
     }
 
-    throw ERR_INVALID_LINK('Protocol is not supported')
+    throw ERR_INVALID_LINK('Protocol is not supported', info)
   }
 }
 

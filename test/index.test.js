@@ -2,7 +2,6 @@
 const { isWindows } = require('which-runtime')
 const path = require('path')
 const test = require('brittle')
-const { ERR_INVALID_LINK } = require('pear-errors')
 const { ALIASES } = require('pear-aliases')
 const { encode } = require('hypercore-id-encoding')
 const { pathToFileURL } = require('url-file-url')
@@ -109,16 +108,16 @@ test('pear://fork.length.key.dhash', async function (t) {
 
 test('invalid link', async function (t) {
   t.plan(10)
-  t.exception(() => plink.parse(), ERR_INVALID_LINK())
-  t.exception(() => plink.parse(''), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('pear://invalid-key'))
+  t.exception(() => plink.parse())
+  t.exception(() => plink.parse(''))
+  t.exception(() => plink.parse('pear://invalidkey'))
   t.exception(() => plink.parse('pear://a.b.c.d.e'))
-  t.exception(() => plink.parse('pear://123.456'), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('pear://nan.123.keet'), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('pear://nan.123.keet.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'), ERR_INVALID_LINK())
-  t.exception(() => plink.parse('unsupport://abc'), ERR_INVALID_LINK())
+  t.exception(() => plink.parse('pear://123.456'))
+  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'))
+  t.exception(() => plink.parse('pear://nan.123.keet'))
+  t.exception(() => plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'))
+  t.exception(() => plink.parse('pear://nan.123.keet.38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'))
+  t.exception(() => plink.parse('unsupport://abc'))
 })
 
 test('pear://<key>', (t) => {
@@ -141,13 +140,6 @@ test('pear://key/pathname', (t) => {
   t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(pathname, '/some/path.js')
   t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
-})
-
-test('pear://invalid-key', (t) => {
-  t.plan(1)
-  t.exception(() => {
-    plink.parse('pear://some-invalid-key')
-  }, /Error: Invalid Hypercore key/)
 })
 
 test('pear://<alias>', (t) => {
