@@ -24,7 +24,7 @@ class PearLink {
       return link.endsWith('/') ? link.slice(0, -1) : link
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
-
+  
   serialize(o) {
     o = hid.isValid(o) ? { drive: { key: o } } : o
     let { protocol, pathname = '', search = '', hash = '', drive } = o
