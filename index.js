@@ -24,11 +24,11 @@ class PearLink {
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
 
-  serialize ({ protocol = PEAR, pathname, search = '', hash = '', drive }) {
+  serialize ({ protocol, pathname = '', search = '', hash = '', drive }) {
     if (protocol === FILE) return `${protocol}//${pathname}${search}${hash}`
-
+    if (!protocol && drive) protocol = PEAR
     if (protocol === PEAR) {
-      const key = drive.alias || encode(drive.key)
+      const key = drive?.alias || encode(drive?.key)
       const base = [drive.fork, drive.length, key, drive.hash && encode(drive.hash)].filter((p) => (p ?? '') + '').join('.')
       return `${protocol}//${base}${pathname}${search}${hash}`
     }
