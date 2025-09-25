@@ -2,15 +2,14 @@
 const path = require('path')
 const { ERR_INVALID_LINK } = require('pear-errors')
 const { ALIASES } = require('pear-aliases')
-const hypercoreid = require('hypercore-id-encoding')
-const { encode } = hypercoreid
+const hid = require('hypercore-id-encoding')
 const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
 
 function decode (v, info = {}) {
   try {
-    return hypercoreid.decode(v)
+    return hid.decode(v)
   } catch (err) {
     if (typeof v === 'string') throw ERR_INVALID_LINK('alias not found: "' + v + '"', { ...info, err })
     throw err
@@ -24,15 +23,16 @@ class PearLink {
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
 
-  serialize ({ protocol, pathname = '', search = '', hash = '', drive }) {
+  serialize (o) {
+    o = hid.isValid(o) ? { drive: { key: o }} : o
+    let { protocol, pathname = '', search = '', hash = '', drive } = o
     if (protocol === FILE) return `${protocol}//${pathname}${search}${hash}`
     if (!protocol && drive) protocol = PEAR
     if (protocol === PEAR) {
-      const key = drive?.alias || encode(drive?.key)
-      const base = [drive.fork, drive.length, key, drive.hash && encode(drive.hash)].filter((p) => (p ?? '') + '').join('.')
+      const key = drive.alias || hid.normalize(drive.key)
+      const base = [drive.fork, drive.length, key, drive.hash && hid.encode(drive.hash)].filter((p) => (p ?? '') + '').join('.')
       return `${protocol}//${base}${pathname}${search}${hash}`
     }
-
     throw ERR_INVALID_LINK('Unsupported protocol', { protocol, pathname, search, hash, drive })
   }
 
@@ -40,7 +40,7 @@ class PearLink {
     if (!link) throw ERR_INVALID_LINK('No link specified', { link })
     const isPath = link.startsWith(PEAR + DOUB) === false && link.startsWith(FILE + DOUB) === false
     const isRelativePath = isPath && link[0] !== '/' && link[1] !== ':'
-    const keys = Object.fromEntries(Object.entries(ALIASES).map(([k, v]) => [encode(v), k]))
+    const keys = Object.fromEntries(Object.entries(ALIASES).map(([k, v]) => [hid.encode(v), k]))
     const {
       protocol,
       pathname,
@@ -73,7 +73,7 @@ class PearLink {
 
       if (parts === 1) { // pear://keyOrAlias[/some/path]
         const key = ALIASES[hostname] || decode(hostname, info)
-        const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${hostname}`
+        const origin = keys[hid.encode(key)] ? `${protocol}//${keys[hid.encode(key)]}` : `${protocol}//${hostname}`
         const alias = ALIASES[hostname] ? hostname : null
         return {
           protocol,
@@ -97,7 +97,7 @@ class PearLink {
 
       const alias = ALIASES[keyOrAlias] ? keyOrAlias : null
       const key = ALIASES[keyOrAlias] || decode(keyOrAlias, info)
-      const origin = keys[encode(key)] ? `${protocol}//${keys[encode(key)]}` : `${protocol}//${keyOrAlias}`
+      const origin = keys[hid.encode(key)] ? `${protocol}//${keys[hid.encode(key)]}` : `${protocol}//${keyOrAlias}`
 
       if (parts === 3) { // pear://fork.length.keyOrAlias[/some/path]
         if (!Number.isInteger(+fork) || !Number.isInteger(+length)) throw ERR_INVALID_LINK('Incorrect hostname', info)
@@ -130,7 +130,7 @@ class PearLink {
             key,
             length: Number(length),
             fork: Number(fork),
-            hash: hypercoreid.decode(apphash),
+            hash: hid.decode(apphash),
             alias
           }
         }

@@ -3,7 +3,7 @@ const { isWindows } = require('which-runtime')
 const path = require('path')
 const test = require('brittle')
 const { ALIASES } = require('pear-aliases')
-const { encode } = require('hypercore-id-encoding')
+const { encode, decode } = require('hypercore-id-encoding')
 const { pathToFileURL } = require('url-file-url')
 const plink = require('..')
 
@@ -258,11 +258,13 @@ test('plink.normalize', (t) => {
 })
 
 test('plink.serialize', (t) => {
-  t.plan(5)
+  t.plan(7)
   t.is(plink.serialize(plink.parse('file:///a/b')), 'file:///a/b')
   t.is(plink.serialize(plink.parse('/a/b')), 'file:///a/b')
   t.is(plink.serialize(plink.parse('/a/b?query')), 'file:///a/b?query')
   t.is(plink.serialize(plink.parse('pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query')), 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query')
+  t.is(plink.serialize('b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo'), 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
+  t.is(plink.serialize(decode('b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')), 'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
   t.exception(() => plink.serialize('http://example.com'), /Unsupported/)
 })
 

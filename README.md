@@ -58,9 +58,13 @@ The returned object contains the following:
 
 Normalizes the link by removing trailing path separators (`/`).
 
-#### `const link = plink.serialize({ protocol, pathname, search, hash, drive })`
+#### `const link = plink.serialize({ protocol, pathname, search, hash, drive })` | `const link = plink.serialize(key)`
 
-Returns the serialized version of the object describing a URL as a string.
+Expects either
+* a parsed object as returned by plink.parse
+* a `hypercore-id-encoding` key, eg `drive.key` - the key in `pear://<key>` - `key` may be buffer or string.
+
+Returns a `pear://` link as a string.
 
 ## License
 
