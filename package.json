@@ -30,13 +30,13 @@
   "dependencies": {
     "hypercore-id-encoding": "^1.2.0",
     "pear-aliases": "^1.0.0",
-    "pear-errors": "^1.0.0",
-    "which-runtime": "^1.2.1"
+    "pear-errors": "^1.0.0"
   },
   "devDependencies": {
     "bare-path": "^3.0.0",
     "brittle": "^3.4.1",
     "standard": "^17.1.0",
-    "url-file-url": "^1.0.5"
+    "url-file-url": "^1.0.5",
+    "which-runtime": "^1.2.1"
   }
 }

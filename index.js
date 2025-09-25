@@ -24,7 +24,7 @@ class PearLink {
     else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
 
-  serialize ({ protocol, pathname, search = '', hash = '', drive }) {
+  serialize ({ protocol = PEAR, pathname, search = '', hash = '', drive }) {
     if (protocol === FILE) return `${protocol}//${pathname}${search}${hash}`
 
     if (protocol === PEAR) {
