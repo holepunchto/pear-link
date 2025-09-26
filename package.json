@@ -4,9 +4,10 @@
   "description": "Parse Pear Links",
   "main": "index.js",
   "scripts": {
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
     "test": "brittle-bare test/index.test.js",
-    "test:node": "node test/index.test.js",
-    "lint": "standard"
+    "test:node": "node test/index.test.js"
   },
   "repository": {
     "type": "git",
