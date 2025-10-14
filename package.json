@@ -29,12 +29,12 @@
   },
   "homepage": "https://github.com/holepunchto/pear-link#readme",
   "dependencies": {
+    "bare-path": "^3.0.0",
     "hypercore-id-encoding": "^1.2.0",
     "pear-aliases": "^1.0.0",
     "pear-errors": "^1.0.0"
   },
   "devDependencies": {
-    "bare-path": "^3.0.0",
     "brittle": "^3.4.1",
     "prettier": "^3.6.2",
     "prettier-config-holepunch": "^1.0.0",
