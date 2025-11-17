@@ -11,7 +11,7 @@ npm install pear-link
 The `pear:` protocol supports the following syntax:
 
 ```
-pear://[<fork>.][<length>.]<keyOrAlias>[.<dhash>]<path>[?<search>][#<lochash>]
+pear://[<fork>.<length>.]<keyOrAlias>[.<dhash>]<path>[?<search>][#<lochash>]
 ```
 
 - `fork` is the [fork id](https://github.com/holepunchto/hypercore#corefork) for the underlying hypercore.
@@ -20,7 +20,7 @@ pear://[<fork>.][<length>.]<keyOrAlias>[.<dhash>]<path>[?<search>][#<lochash>]
 - `path` is zero or more path segments separated by a `/`.
 - `search` is a query string of non-hierarchical data proceeded by a question
   mark (`?`).
-- `lochash` is the fragment proceeded by a hash (`#`).
+- `lochash` is the fragment preceeded by a hash (`#`).
 
 ## API
 
