@@ -19,6 +19,9 @@ function decode(v, info = {}) {
 
 class PearLink {
   normalize(link) {
+    if (typeof link !== 'string') {
+      throw new ERR_INVALID_LINK('Link must be a string')
+    }
     // if link has link format, separator is always '/' even in Windows
     if (link.startsWith(FILE + DOUB))
       return link.endsWith('/') ? link.slice(0, -1) : link
