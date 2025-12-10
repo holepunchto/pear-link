@@ -11,8 +11,9 @@ function decode(v, info = {}) {
   try {
     return hid.decode(v)
   } catch (err) {
-    if (typeof v === 'string')
+    if (typeof v === 'string') {
       throw ERR_INVALID_LINK('alias not found: "' + v + '"', { ...info, err })
+    }
     throw err
   }
 }
@@ -20,9 +21,9 @@ function decode(v, info = {}) {
 class PearLink {
   normalize(link) {
     // if link has link format, separator is always '/' even in Windows
-    if (link.startsWith(FILE + DOUB))
+    if (link.startsWith(FILE + DOUB)) {
       return link.endsWith('/') ? link.slice(0, -1) : link
-    else return link.endsWith(path.sep) ? link.slice(0, -1) : link
+    } else return link.endsWith(path.sep) ? link.slice(0, -1) : link
   }
 
   serialize(o) {
@@ -68,8 +69,9 @@ class PearLink {
       // file:///some/path/to/a/file.js
       const startsWithRoot = hostname === ''
       if (!pathname) throw ERR_INVALID_LINK('Path is missing', info)
-      if (!startsWithRoot)
+      if (!startsWithRoot) {
         throw ERR_INVALID_LINK('Path needs to start from the root, "/"', info)
+      }
       return {
         protocol,
         pathname,
@@ -123,8 +125,9 @@ class PearLink {
 
       if (parts === 3) {
         // pear://fork.length.keyOrAlias[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length))
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) {
           throw ERR_INVALID_LINK('Incorrect hostname', info)
+        }
         return {
           protocol,
           pathname,
@@ -143,8 +146,9 @@ class PearLink {
 
       if (parts === 4) {
         // pear://fork.length.keyOrAlias.dhash[/some/path]
-        if (!Number.isInteger(+fork) || !Number.isInteger(+length))
+        if (!Number.isInteger(+fork) || !Number.isInteger(+length)) {
           throw ERR_INVALID_LINK('Incorrect hostname', info)
+        }
 
         return {
           protocol,
