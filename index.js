@@ -6,10 +6,6 @@ const FILE = 'file:'
 const PEAR = 'pear:'
 const DOUB = '//'
 
-function decode(v) {
-  return hid.decode(v)
-}
-
 class PearLink {
   normalize(link) {
     // if link has link format, separator is always '/' even in Windows
