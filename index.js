@@ -80,7 +80,7 @@ class PearLink {
 
       if (parts === 1) {
         // pear://key[/some/path]
-        const key = decode(hostname)
+        const key = hostname
         const origin = `${protocol}//${hostname}`
         return {
           protocol,
