@@ -89,7 +89,7 @@ class PearLink {
           hash,
           origin,
           drive: {
-            key,
+            key: hid.decode(key),
             length: null,
             fork: null,
             hash: null
@@ -116,7 +116,7 @@ class PearLink {
           hash,
           origin,
           drive: {
-            key,
+            key: hid.decode(key),
             length: Number(length),
             fork: Number(fork),
             hash: null
@@ -137,7 +137,7 @@ class PearLink {
           hash,
           origin,
           drive: {
-            key,
+            key: hid.decode(key),
             length: Number(length),
             fork: Number(fork),
             hash: hid.decode(apphash)
