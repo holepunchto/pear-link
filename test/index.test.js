@@ -2,12 +2,11 @@
 const { isWindows } = require('which-runtime')
 const path = require('path')
 const test = require('brittle')
-const { ALIASES } = require('pear-aliases')
-const { encode, decode } = require('hypercore-id-encoding')
+const { decode } = require('hypercore-id-encoding')
 const { pathToFileURL } = require('url-file-url')
 const plink = require('..')
 
-test('./some/path/to/a/file.js', async function (t) {
+test('./some/path/to/a/file.js', function (t) {
   t.plan(7)
   const res = plink.parse('./some/path/to/a/file.js')
   t.is(res.protocol, 'file:')
@@ -19,7 +18,7 @@ test('./some/path/to/a/file.js', async function (t) {
   t.is(res.drive.hash, null)
 })
 
-test('file:///some/path/to/a/file.js', async function (t) {
+test('file:///some/path/to/a/file.js', function (t) {
   t.plan(7)
   const res = plink.parse('file:///some/path/to/a/file.js')
   t.is(res.protocol, 'file:')
@@ -31,8 +30,8 @@ test('file:///some/path/to/a/file.js', async function (t) {
   t.is(res.drive.hash, null)
 })
 
-test('pear://key', async function (t) {
-  t.plan(8)
+test('pear://key', function (t) {
+  t.plan(7)
   const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
   const res = plink.parse(`pear://${key}`)
   t.is(res.protocol, 'pear:')
@@ -42,27 +41,10 @@ test('pear://key', async function (t) {
   t.is(res.drive.length, null)
   t.is(res.drive.fork, null)
   t.is(res.drive.hash, null)
-  t.is(res.drive.alias, null)
 })
 
-test('pear://alias', async function (t) {
-  t.plan(24)
-  const aliases = ['keet', 'runtime', 'doctor']
-  for (const alias of aliases) {
-    const res = plink.parse(`pear://${alias}`)
-    t.is(res.protocol, 'pear:')
-    t.is(res.pathname, '')
-    t.is(res.hash, '')
-    t.is(res.drive.key, ALIASES[alias])
-    t.is(res.drive.length, null)
-    t.is(res.drive.fork, null)
-    t.is(res.drive.hash, null)
-    t.is(res.drive.alias, alias)
-  }
-})
-
-test('pear://fork.length.key', async function (t) {
-  t.plan(8)
+test('pear://fork.length.key', function (t) {
+  t.plan(7)
   const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
   const res = plink.parse(`pear://123.456.${key}`)
   t.is(res.protocol, 'pear:')
@@ -72,27 +54,10 @@ test('pear://fork.length.key', async function (t) {
   t.is(res.drive.length, 456)
   t.is(res.drive.fork, 123)
   t.is(res.drive.hash, null)
-  t.is(res.drive.alias, null)
 })
 
-test('alias pear://fork.length.alias', async function (t) {
-  t.plan(24)
-  const aliases = ['keet', 'runtime', 'doctor']
-  for (const alias of aliases) {
-    const res = plink.parse(`pear://123.456.${alias}`)
-    t.is(res.protocol, 'pear:')
-    t.is(res.pathname, '')
-    t.is(res.hash, '')
-    t.is(res.drive.key, ALIASES[alias])
-    t.is(res.drive.length, 456)
-    t.is(res.drive.fork, 123)
-    t.is(res.drive.hash, null)
-    t.is(res.drive.alias, alias)
-  }
-})
-
-test('pear://fork.length.key.dhash', async function (t) {
-  t.plan(8)
+test('pear://fork.length.key.dhash', function (t) {
+  t.plan(7)
   const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
   const dhash =
     '38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'
@@ -104,10 +69,9 @@ test('pear://fork.length.key.dhash', async function (t) {
   t.is(res.drive.length, 456)
   t.is(res.drive.fork, 123)
   t.is(res.drive.hash.toString('hex'), dhash)
-  t.is(res.drive.alias, null)
 })
 
-test('invalid link', async function (t) {
+test('invalid link', function (t) {
   t.plan(10)
   t.exception(() => plink.parse())
   t.exception(() => plink.parse(''))
@@ -181,39 +145,6 @@ test('pear://key/pathname', (t) => {
   )
 })
 
-test('pear://<alias>', (t) => {
-  t.plan(7)
-  const {
-    protocol,
-    pathname,
-    origin,
-    drive: { length, fork, key, alias }
-  } = plink.parse('pear://keet')
-  t.is(protocol, 'pear:')
-  t.is(length, null)
-  t.is(fork, null)
-  t.is(alias, 'keet')
-  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
-  t.absent(pathname)
-  t.is(origin, 'pear://keet')
-})
-
-test('pear://alias/path', (t) => {
-  t.plan(6)
-  const {
-    protocol,
-    pathname,
-    origin,
-    drive: { length, fork, key }
-  } = plink.parse('pear://keet/some/path')
-  t.is(protocol, 'pear:')
-  t.is(length, null)
-  t.is(fork, null)
-  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
-  t.is(pathname, '/some/path')
-  t.is(origin, 'pear://keet')
-})
-
 test('pear://<fork>.<length>.<key>', (t) => {
   t.plan(4)
   const { protocol, origin, drive } = plink.parse(
@@ -244,22 +175,6 @@ test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
     drive.key.toString('hex'),
     '0ff0113e98ecbfffbed445589f0860c1e9fa67f7edac6d65aa8707df2aec3357'
   )
-})
-
-test('pear://alias/path', (t) => {
-  t.plan(6)
-  const {
-    protocol,
-    pathname,
-    origin,
-    drive: { length, fork, key }
-  } = plink.parse('pear://keet/some/path')
-  t.is(protocol, 'pear:')
-  t.is(length, null)
-  t.is(fork, null)
-  t.is(key.toString('hex'), ALIASES.keet.toString('hex'))
-  t.is(pathname, '/some/path')
-  t.is(origin, 'pear://keet')
 })
 
 test('file:///path', (t) => {
@@ -383,20 +298,13 @@ test('origin: file://', (t) => {
 })
 
 test('origin: pear://', (t) => {
-  t.plan(6)
-  t.is(plink.parse('pear://keet').origin, 'pear://keet')
-  t.is(plink.parse('pear://keet#fragment').origin, 'pear://keet')
-  t.is(
-    plink.parse('pear://keet/route/to/entry.js#fragment').origin,
-    'pear://keet'
-  )
+  t.plan(2)
   t.is(
     plink.parse(
       'pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path#lochash'
     ).origin,
     'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo'
   )
-  t.is(plink.parse('pear://keet/route/to/entry.js?query').origin, 'pear://keet')
   t.is(
     plink.parse(
       'pear://2.2455.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo.b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/some/path?query'
@@ -418,20 +326,6 @@ test('origin: /', (t) => {
   t.is(plink.parse('/Users/user/app?query').origin, 'file:///Users/user/app')
 })
 
-test('origin: keyToAlias', (t) => {
-  t.plan(3)
-  t.is(plink.parse(`pear://${encode(ALIASES.keet)}`).origin, 'pear://keet')
-  t.is(
-    plink.parse(`pear://${encode(ALIASES.keet)}/route/to/entry.js#fragment`)
-      .origin,
-    'pear://keet'
-  )
-  t.is(
-    plink.parse(`pear://${encode(ALIASES.runtime)}`).origin,
-    'pear://runtime'
-  )
-})
-
 test('origin: Unix', { skip: isWindows }, (t) => {
   t.plan(1)
   t.is(plink.parse('/Users/user/app/').origin, 'file:///Users/user/app')
@@ -446,7 +340,7 @@ test('origin: Windows', { skip: !isWindows }, (t) => {
 })
 
 test('search', (t) => {
-  t.plan(3)
+  t.plan(2)
   t.is(plink.parse('file:///Users/user/app/?test').search, '?test')
   t.is(
     plink.parse(
@@ -454,7 +348,6 @@ test('search', (t) => {
     ).search,
     '?test'
   )
-  t.is(plink.parse('pear://keet/route/to/entry.js?test').search, '?test')
 })
 
 function cwd() {
