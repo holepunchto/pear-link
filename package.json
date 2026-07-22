@@ -32,7 +32,6 @@
   "dependencies": {
     "bare-path": "^3.0.0",
     "hypercore-id-encoding": "^1.2.0",
-    "pear-aliases": "^1.0.0",
     "pear-errors": "^1.0.0"
   },
   "devDependencies": {
