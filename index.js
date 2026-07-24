@@ -21,12 +21,7 @@ class PearLink {
     if (!protocol && drive) protocol = PEAR
     if (protocol === PEAR) {
       const key = hid.normalize(drive.key)
-      const base = [
-        drive.fork,
-        drive.length,
-        key,
-        drive.hash && hid.encode(drive.hash)
-      ]
+      const base = [drive.fork, drive.length, key, drive.hash && hid.encode(drive.hash)]
         .filter((p) => (p ?? '') + '')
         .join('.')
       return `${protocol}//${base}${pathname}${search}${hash}`
@@ -42,9 +37,7 @@ class PearLink {
 
   parse(link) {
     if (!link) throw ERR_INVALID_LINK('No link specified', { link })
-    const isPath =
-      link.startsWith(PEAR + DOUB) === false &&
-      link.startsWith(FILE + DOUB) === false
+    const isPath = link.startsWith(PEAR + DOUB) === false && link.startsWith(FILE + DOUB) === false
     const isRelativePath = isPath && link[0] !== '/' && link[1] !== ':'
     const { protocol, pathname, hostname, search, hash } = isRelativePath
       ? new URL(link, FILE + DOUB + path.resolve('.') + '/')

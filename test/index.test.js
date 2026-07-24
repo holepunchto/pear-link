@@ -59,8 +59,7 @@ test('pear://fork.length.key', function (t) {
 test('pear://fork.length.key.dhash', function (t) {
   t.plan(7)
   const key = 'd47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
-  const dhash =
-    '38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'
+  const dhash = '38d8296e972167f4ad37803999fbcac17025271162f44dcdce1188d4bc5bac1d'
   const res = plink.parse(`pear://123.456.${key}.${dhash}`)
   t.is(res.protocol, 'pear:')
   t.is(res.pathname, '')
@@ -79,9 +78,7 @@ test('invalid link', function (t) {
   t.exception(() => plink.parse('pear://a.b.c.d.e'))
   t.exception(() => plink.parse('pear://123.456'))
   t.exception(() =>
-    plink.parse(
-      'pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221'
-    )
+    plink.parse('pear://123.nan.d47c1dfecec0f74a067985d2f8d7d9ad15f9ae5ff648f7bc6ca28e41d70ed221')
   )
   t.exception(() => plink.parse('pear://nan.123.keet'))
   t.exception(() =>
@@ -104,21 +101,13 @@ test('pear://<key>', (t) => {
     pathname,
     origin,
     drive: { length, fork, key }
-  } = plink.parse(
-    'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  )
+  } = plink.parse('pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(protocol, 'pear:')
   t.is(length, null)
   t.is(fork, null)
-  t.is(
-    key.toString('hex'),
-    'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  )
+  t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.absent(pathname)
-  t.is(
-    origin,
-    'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  )
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://key/pathname', (t) => {
@@ -134,15 +123,9 @@ test('pear://key/pathname', (t) => {
   t.is(protocol, 'pear:')
   t.is(length, null)
   t.is(fork, null)
-  t.is(
-    key.toString('hex'),
-    'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  )
+  t.is(key.toString('hex'), 'a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
   t.is(pathname, '/some/path.js')
-  t.is(
-    origin,
-    'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2'
-  )
+  t.is(origin, 'pear://a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2c3d4e5a1b2')
 })
 
 test('pear://<fork>.<length>.<key>', (t) => {
@@ -179,9 +162,7 @@ test('pear://<fork>.<length>.<key>.<dhash>/some/path#lochash', (t) => {
 
 test('file:///path', (t) => {
   t.plan(4)
-  const { drive, protocol, pathname, origin } = plink.parse(
-    'file:///path/to/file.js'
-  )
+  const { drive, protocol, pathname, origin } = plink.parse('file:///path/to/file.js')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
   t.is(pathname, '/path/to/file.js')
@@ -193,25 +174,17 @@ test('relative path', (t) => {
   const { drive, protocol, pathname } = plink.parse('foobar')
   t.is(drive.key, null)
   t.is(protocol, 'file:')
-  t.is(
-    isWindows ? path.normalize(pathname.slice(1)) : pathname,
-    path.join(cwd(), 'foobar')
-  )
+  t.is(isWindows ? path.normalize(pathname.slice(1)) : pathname, path.join(cwd(), 'foobar'))
 })
 
 test('absolute path', (t) => {
   t.plan(3)
   const abspath =
-    (isWindows
-      ? '/' + cwd().split(path.win32.sep).join(path.posix.sep)
-      : cwd()) + '/foobar'
+    (isWindows ? '/' + cwd().split(path.win32.sep).join(path.posix.sep) : cwd()) + '/foobar'
   const { drive, protocol, pathname } = plink.parse(abspath)
   t.is(drive.key, null)
   t.is(protocol, 'file:')
-  t.is(
-    isWindows ? path.normalize(pathname.slice(1)) : pathname,
-    path.join(cwd(), 'foobar')
-  )
+  t.is(isWindows ? path.normalize(pathname.slice(1)) : pathname, path.join(cwd(), 'foobar'))
 })
 
 test('absolute drive-lettered win path', (t) => {
@@ -256,9 +229,7 @@ test('plink.serialize', (t) => {
   t.is(plink.serialize(plink.parse('/a/b?query')), 'file:///a/b?query')
   t.is(
     plink.serialize(
-      plink.parse(
-        'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query'
-      )
+      plink.parse('pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query')
     ),
     'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo/b?query'
   )
@@ -267,9 +238,7 @@ test('plink.serialize', (t) => {
     'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo'
   )
   t.is(
-    plink.serialize(
-      decode('b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')
-    ),
+    plink.serialize(decode('b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo')),
     'pear://b9abnxwa71999xsweicj6ndya8w9w39z7ssg43pkohd76kzcgpmo'
   )
   t.exception(() => plink.serialize('http://example.com'), /Unsupported/)
@@ -279,22 +248,10 @@ test('origin: file://', (t) => {
   t.plan(6)
   t.is(plink.parse('file:///Users/user/app').origin, 'file:///Users/user/app')
   t.is(plink.parse('file:///Users/user/app/').origin, 'file:///Users/user/app')
-  t.is(
-    plink.parse('file:///Users/user/app/#fragment').origin,
-    'file:///Users/user/app'
-  )
-  t.is(
-    plink.parse('file:///Users/user/app#fragment').origin,
-    'file:///Users/user/app'
-  )
-  t.is(
-    plink.parse('file:///Users/user/app/?query').origin,
-    'file:///Users/user/app'
-  )
-  t.is(
-    plink.parse('file:///Users/user/app?query').origin,
-    'file:///Users/user/app'
-  )
+  t.is(plink.parse('file:///Users/user/app/#fragment').origin, 'file:///Users/user/app')
+  t.is(plink.parse('file:///Users/user/app#fragment').origin, 'file:///Users/user/app')
+  t.is(plink.parse('file:///Users/user/app/?query').origin, 'file:///Users/user/app')
+  t.is(plink.parse('file:///Users/user/app?query').origin, 'file:///Users/user/app')
 })
 
 test('origin: pear://', (t) => {
@@ -317,10 +274,7 @@ test('origin: /', (t) => {
   t.plan(6)
   t.is(plink.parse('/Users/user/app').origin, 'file:///Users/user/app')
   t.is(plink.parse('/Users/user/app/').origin, 'file:///Users/user/app')
-  t.is(
-    plink.parse('/Users/user/app/#fragment').origin,
-    'file:///Users/user/app'
-  )
+  t.is(plink.parse('/Users/user/app/#fragment').origin, 'file:///Users/user/app')
   t.is(plink.parse('/Users/user/app#fragment').origin, 'file:///Users/user/app')
   t.is(plink.parse('/Users/user/app/?query').origin, 'file:///Users/user/app')
   t.is(plink.parse('/Users/user/app?query').origin, 'file:///Users/user/app')
@@ -333,10 +287,7 @@ test('origin: Unix', { skip: isWindows }, (t) => {
 
 test('origin: Windows', { skip: !isWindows }, (t) => {
   t.plan(1)
-  t.is(
-    plink.parse('C:\\Users\\user\\app\\').origin,
-    'file:///C:/Users/user/app'
-  )
+  t.is(plink.parse('C:\\Users\\user\\app\\').origin, 'file:///C:/Users/user/app')
 })
 
 test('search', (t) => {
